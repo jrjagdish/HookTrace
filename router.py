@@ -1,10 +1,12 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from auth import get_current_user
+from services.processor import process_repository
 from db import get_db
 from models import User, Repositories, RepositoryFiles
 import schemas
 from github_parser.tarfile import fetch_repo_tree_and_files
+from fastapi import BackgroundTasks
 
 router = APIRouter()
 
@@ -12,6 +14,7 @@ router = APIRouter()
 @router.post("/repositories")
 async def create_repository(
     payload: schemas.RepositoryCreate,
+    background_tasks: BackgroundTasks,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
@@ -30,8 +33,7 @@ async def create_repository(
         )
     except Exception as e:
         raise HTTPException(
-            status_code=500,
-            detail=f"Failed to fetch repository archive: {str(e)}"
+            status_code=500, detail=f"Failed to fetch repository archive: {str(e)}"
         )
 
     for path, content in files_data["files_content"].items():
@@ -41,8 +43,12 @@ async def create_repository(
         db.add(repo_file)
 
     db.commit()
+    background_tasks.add_task(
+        process_repository, repository.id, files_data["files_content"]
+    )
 
     return {
         "repository_id": repository.id,
         "files_saved": len(files_data["files_content"]),
+        "status" : "Processing"
     }

@@ -86,6 +86,7 @@ async def fetch_repo_tree_and_files(
                         ".xvid",
                         "venv/",
                         "__pycache__/",
+                        ".pyc",
                         ".ipynb_checkpoints/",
                         
                     ]

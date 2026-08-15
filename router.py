@@ -27,6 +27,7 @@ async def create_repository(
     branch = payload_dict.get("default_branch", "main")
     github_url = payload_dict.get("github_url", "")
     owner_repo = github_url.rstrip("/").split("/")[-2:]
+    file_map = {}
     try:
         files_data = await fetch_repo_tree_and_files(
             owner_repo[0], owner_repo[1].removesuffix(".git"), branch
@@ -41,10 +42,12 @@ async def create_repository(
             repository_id=repository.id, file_path=path, file_content=content
         )
         db.add(repo_file)
+        db.flush()
+        file_map[path] = repo_file.id
 
     db.commit()
     background_tasks.add_task(
-        process_repository, repository.id, files_data["files_content"]
+        process_repository, repository.id, files_data["files_content"],file_map
     )
 
     return {

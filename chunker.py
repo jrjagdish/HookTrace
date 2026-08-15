@@ -46,7 +46,7 @@ async def chunk_file(
             {
                 "file_path": file_path,
                 "node_type": node.type,
-                "chunk_content": chunk,
+                "content": chunk,
             }
         )
 

@@ -148,7 +148,7 @@ class RepositoryChunks(Base):
     )
 
     embedding: Mapped[list[float] | None] = mapped_column(
-        Vector(768),  # adjust to your embedding model
+        Vector(384),  # adjust to your embedding model
         nullable=True,
     )
 

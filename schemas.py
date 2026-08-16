@@ -27,3 +27,7 @@ class RepositoryCreate(BaseModel):
     name : str
     github_url : str
     default_branch : str
+
+class QueryRequest(BaseModel):
+    query: str
+    top_k: int = 5

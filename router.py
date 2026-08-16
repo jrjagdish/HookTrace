@@ -1,3 +1,5 @@
+from uuid import UUID
+
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from auth import get_current_user
@@ -7,11 +9,12 @@ from models import User, Repositories, RepositoryFiles
 import schemas
 from github_parser.tarfile import fetch_repo_tree_and_files
 from fastapi import BackgroundTasks
+from services.rag import answer_query
 
 router = APIRouter()
 
 
-@router.post("/repositories")
+@router.post("/repositories/create")
 async def create_repository(
     payload: schemas.RepositoryCreate,
     background_tasks: BackgroundTasks,
@@ -55,3 +58,38 @@ async def create_repository(
         "files_saved": len(files_data["files_content"]),
         "status" : "Processing"
     }
+
+@router.get("/repositories")
+async def get_repositories(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    repositories = (
+        db.query(Repositories)
+        .filter(Repositories.user_id == current_user.id)
+        .all()
+    )
+    return repositories
+
+@router.post("/repositories/{repository_id}/query")
+async def query_repository(
+    repository_id: UUID,
+    payload: schemas.QueryRequest,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    repository = (
+        db.query(Repositories)
+        .filter(Repositories.id == repository_id, Repositories.user_id == current_user.id)
+        .first()
+    )
+    if not repository:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Repository not found or access denied",
+        )
+
+    
+
+    result = await answer_query(db, repository.id, payload.query, payload.top_k)
+    return result

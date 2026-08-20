@@ -29,6 +29,7 @@ class User(Base):
         DateTime, default=lambda: datetime.now(timezone.utc), nullable=False
     )
     repositories: Mapped[List["Repositories"]] = relationship(back_populates="user")
+    chat_history: Mapped[List["ChatHistory"]] = relationship(back_populates="user")
 
 
 class Repositories(Base):
@@ -69,6 +70,10 @@ class Repositories(Base):
     )
 
     chunks: Mapped[List["RepositoryChunks"]] = relationship(
+        back_populates="repository",
+        cascade="all, delete-orphan",
+    )
+    chat: Mapped[List["ChatHistory"]] = relationship(
         back_populates="repository",
         cascade="all, delete-orphan",
     )
@@ -161,3 +166,42 @@ class RepositoryChunks(Base):
     repository: Mapped["Repositories"] = relationship(back_populates="chunks")
 
     file: Mapped["RepositoryFiles"] = relationship(back_populates="chunks")
+
+class ChatHistory(Base):
+    __tablename__ = "chat_history"
+
+    id: Mapped[UUID] = mapped_column(
+        UUID(as_uuid=True),
+        primary_key=True,
+        nullable=False,
+        default=lambda: uuid.uuid4(),
+    )
+
+    repository_id: Mapped[UUID] = mapped_column(
+        ForeignKey("repositories.id"),
+        nullable=False,
+    )
+
+    user_id: Mapped[UUID] = mapped_column(
+        ForeignKey("user.id"),
+        nullable=False,
+    )
+
+    query: Mapped[str] = mapped_column(
+        Text,
+        nullable=False,
+    )
+
+    answer: Mapped[str] = mapped_column(
+        Text,
+        nullable=False,
+    )
+
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime,
+        default=lambda: datetime.now(timezone.utc),
+        nullable=False,
+    )
+
+    repository: Mapped["Repositories"] = relationship(back_populates="chat")
+    user: Mapped["User"] = relationship(back_populates="chat_history")

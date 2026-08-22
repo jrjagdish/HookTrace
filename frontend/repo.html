@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>RepoChat - Chat</title>
+  <link rel="stylesheet" href="/style.css" />
+</head>
+<body>
+  <div class="topnav">
+    <div class="brand"><span class="dot"></span> RepoChat</div>
+    <nav>
+      <a href="/dashboard.html">Repositories</a>
+      <a href="/history.html">Chat history</a>
+    </nav>
+    <div class="right">
+      <a id="logout-link">Log out</a>
+    </div>
+  </div>
+
+  <main>
+    <div class="repo-header">
+      <div class="titles">
+        <h1 id="repo-name">Loading&hellip;</h1>
+        <div class="url" id="repo-url"></div>
+      </div>
+      <span id="repo-badge"></span>
+    </div>
+
+    <div class="processing-notice" id="processing-notice" style="display:none;">
+      <span class="spinner"></span>
+      This repository is still being processed. You can ask questions now, but answers may be
+      incomplete until indexing finishes.
+    </div>
+
+    <div class="error-banner" id="repo-error" style="display:none;"></div>
+
+    <div class="chat-shell">
+      <div class="chat-messages" id="messages">
+        <div class="empty">Ask anything about this repository's code.</div>
+      </div>
+      <form class="chat-input-row" id="chat-form">
+        <textarea id="chat-input" placeholder="Ask about this repo... (Enter to send, Shift+Enter for newline)" required></textarea>
+        <button type="submit" id="send-btn">Send</button>
+      </form>
+    </div>
+  </main>
+
+  <script src="/api.js"></script>
+  <script src="/repo.js"></script>
+</body>
+</html>

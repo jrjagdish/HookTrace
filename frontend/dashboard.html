@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>RepoChat - Dashboard</title>
+  <link rel="stylesheet" href="/style.css" />
+</head>
+<body>
+  <div class="topnav">
+    <div class="brand"><span class="dot"></span> RepoChat</div>
+    <nav>
+      <a href="/dashboard.html" class="active">Repositories</a>
+      <a href="/history.html">Chat history</a>
+    </nav>
+    <div class="right">
+      <a id="logout-link">Log out</a>
+    </div>
+  </div>
+
+  <main>
+    <div class="page-header">
+      <div>
+        <h1>Your repositories</h1>
+        <p class="sub">Connect a GitHub repo and ask questions about its code.</p>
+      </div>
+    </div>
+
+    <div class="error-banner" id="form-error" style="display:none;"></div>
+
+    <form class="add-repo-form" id="add-repo-form">
+      <input type="text" id="repo-name" placeholder="Name (e.g. my-api)" required />
+      <input type="url" id="repo-url" placeholder="https://github.com/owner/repo" required />
+      <input type="text" id="repo-branch" placeholder="Branch" value="main" required />
+      <button type="submit" id="add-repo-btn">Add repository</button>
+    </form>
+
+    <div id="list">
+      <div class="skeleton" style="height:64px;margin-bottom:12px;"></div>
+      <div class="skeleton" style="height:64px;margin-bottom:12px;"></div>
+    </div>
+  </main>
+
+  <script src="/api.js"></script>
+  <script src="/dashboard.js"></script>
+</body>
+</html>

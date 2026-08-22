@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>RepoChat - Chat history</title>
+  <link rel="stylesheet" href="/style.css" />
+</head>
+<body>
+  <div class="topnav">
+    <div class="brand"><span class="dot"></span> RepoChat</div>
+    <nav>
+      <a href="/dashboard.html">Repositories</a>
+      <a href="/history.html" class="active">Chat history</a>
+    </nav>
+    <div class="right">
+      <a id="logout-link">Log out</a>
+    </div>
+  </div>
+
+  <main>
+    <div class="page-header">
+      <div>
+        <h1>Chat history</h1>
+        <p class="sub">Every question you've asked, across all repositories.</p>
+      </div>
+    </div>
+
+    <div id="list">
+      <div class="skeleton" style="height:90px;margin-bottom:12px;"></div>
+      <div class="skeleton" style="height:90px;margin-bottom:12px;"></div>
+    </div>
+  </main>
+
+  <script src="/api.js"></script>
+  <script src="/history.js"></script>
+</body>
+</html>

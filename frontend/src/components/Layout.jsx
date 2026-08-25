@@ -13,9 +13,11 @@ export default function Layout() {
   return (
     <div className="app-shell">
       <header className="topbar">
-        <span className="brand">RepoChat</span>
+        <NavLink to="/" className="brand">
+          RepoChat
+        </NavLink>
         <nav className="nav">
-          <NavLink to="/" end className={({ isActive }) => (isActive ? "active" : "")}>
+          <NavLink to="/app" end className={({ isActive }) => (isActive ? "active" : "")}>
             Repositories
           </NavLink>
           <NavLink to="/history" className={({ isActive }) => (isActive ? "active" : "")}>

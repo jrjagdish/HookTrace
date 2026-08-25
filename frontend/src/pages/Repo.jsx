@@ -39,7 +39,7 @@ export default function Repo() {
   return (
     <div className="page repo-page">
       <div className="repo-header">
-        <Link to="/" className="back-link">
+        <Link to="/app" className="back-link">
           ← Repositories
         </Link>
         {repoName && <h2>{repoName}</h2>}

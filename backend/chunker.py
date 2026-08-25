@@ -1,3 +1,4 @@
+import asyncio
 from pathlib import Path
 
 from tree_sitter_language_pack import get_parser
@@ -30,7 +31,8 @@ async def chunk_file(
 
     parser = get_parser(language)
 
-    tree = parser.parse(content.encode("utf-8"))
+    
+    tree = await asyncio.to_thread(parser.parse, content.encode("utf-8"))
 
     chunks = []
 

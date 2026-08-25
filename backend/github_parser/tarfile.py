@@ -1,25 +1,40 @@
 import io
+import logging
+import re
 import tarfile
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Tuple
 
 import httpx
-from passlib import ext
+
+
+
+logger = logging.getLogger(__name__)
+
+_GITHUB_URL_RE = re.compile(
+    r"^https?://github\.com/(?P<owner>[^/\s]+)/(?P<repo>[^/\s]+?)(\.git)?/?$"
+)
+
+
+
+def parse_github_url(github_url: str) -> Tuple[str, str]:
+    match = _GITHUB_URL_RE.match((github_url or "").strip())
+    if not match:
+        raise ValueError("github_url must look like https://github.com/<owner>/<repo>")
+    return match.group("owner"), match.group("repo")
 
 
 async def fetch_repo_tree_and_files(
     owner: str, repo: str, branch: str = "main", github_token: str = None
 ) -> Dict[str, Any]:
     headers = {"User-Agent": "FastAPI-App"}
-    print("OWNER:", owner)
-    print("REPO:", repo)
-    print("BRANCH:", branch)
+    logger.debug("Fetching repo tree: owner=%s repo=%s branch=%s", owner, repo, branch)
 
     if github_token:
-        # Authenticated user (Public or Private repo)
+      
         url = f"https://api.github.com/repos/{owner}/{repo}/tarball/{branch}"
         headers["Authorization"] = f"Bearer {github_token}"
     else:
-        # Anonymous user: Use direct archive URL to bypass API rate limits
+       
         url = f"https://github.com/{owner}/{repo}/archive/refs/heads/{branch}.tar.gz"
 
     file_tree: List[str] = []
@@ -95,11 +110,12 @@ async def fetch_repo_tree_and_files(
 
                 file_tree.append(clean_path)
 
+             
                 if member.size < 500 * 1024:
                     file_obj = tar.extractfile(member)
-                if file_obj:
-                    try:
-                        files_content[clean_path] = file_obj.read().decode("utf-8")
-                    except UnicodeDecodeError:
-                        pass
+                    if file_obj:
+                        try:
+                            files_content[clean_path] = file_obj.read().decode("utf-8")
+                        except UnicodeDecodeError:
+                            pass
     return {"file_tree": file_tree, "files_content": files_content}

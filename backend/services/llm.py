@@ -1,10 +1,19 @@
+import logging
+
 from groq import AsyncGroq
 from dotenv import load_dotenv
 import os
 
 load_dotenv()
 
+logger = logging.getLogger(__name__)
+
 GROQ_API_KEY = os.getenv("GROQ_API_KEY")
+
+# CHANGED: build the client once at import time instead of on every call to
+# generate_answer(). Also lets us fail with a clear message up front when the key is
+# missing, instead of the SDK raising an opaque error deep inside the request.
+_client = AsyncGroq(api_key=GROQ_API_KEY) if GROQ_API_KEY else None
 
 
 SYSTEM_PROMPT = """
@@ -69,26 +78,32 @@ Then explain what information would be needed.
 
 
 async def generate_answer(query: str, context: str):
-    client = AsyncGroq(api_key=GROQ_API_KEY)
+   
+    if _client is None:
+        raise RuntimeError("GROQ_API_KEY is not configured")
 
-    chat_completion = await client.chat.completions.create(
-        messages=[
-            {
-                "role": "system",
-                "content": SYSTEM_PROMPT,
-            },
-            {
-                "role": "user",
-                "content": f"""
+    try:
+        chat_completion = await _client.chat.completions.create(
+            messages=[
+                {
+                    "role": "system",
+                    "content": SYSTEM_PROMPT,
+                },
+                {
+                    "role": "user",
+                    "content": f"""
 Repository Context:
 {context}
 
 Question:
 {query}
 """,
-            },
-        ],
-        model="openai/gpt-oss-120b",
-    )
+                },
+            ],
+            model="openai/gpt-oss-120b",
+        )
+    except Exception as e:
+        logger.exception("Groq request failed")
+        raise RuntimeError(f"LLM request failed: {e}") from e
 
     return chat_completion.choices[0].message.content
